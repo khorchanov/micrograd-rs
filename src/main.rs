@@ -7,9 +7,8 @@ use std::{
 
 #[derive(Debug, Clone)]
 enum Operation {
-    Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
-    Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Tanh(Rc<RefCell<Value>>),
+    Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
 }
 
 #[derive(Debug, Clone)]
@@ -20,12 +19,12 @@ struct Value {
 }
 
 impl Value {
-    fn new(data: f32) -> Self {
-        Value {
+    fn new(data: f32) -> Rc<RefCell<Self>> {
+        Rc::new(RefCell::new(Value {
             data,
             grad: 0.0,
             op: None,
-        }
+        }))
     }
 
     fn tanh(self_rc: &Rc<RefCell<Self>>) -> Rc<RefCell<Self>> {
@@ -38,37 +37,19 @@ impl Value {
         }))
     }
 
-    fn backward(&mut self) {
-        match self.op {
-            Some(Operation::Add(ref mut a, ref mut b)) => {
-                a.borrow_mut().grad += 1.0 * self.grad;
-                b.borrow_mut().grad += 1.0 * self.grad;
-            }
-            Some(Operation::Mul(ref mut a, ref mut b)) => {
-                a.borrow_mut().grad += b.borrow().data * self.grad;
-                b.borrow_mut().grad += a.borrow().data * self.grad;
-            }
-            Some(Operation::Tanh(ref mut a)) => {
-                let x = self.data;
+    fn backward(self_rc: &Rc<RefCell<Self>>) {
+        match self_rc.borrow().op {
+            Some(Operation::Tanh(ref a)) => {
+                let x = self_rc.borrow().data;
                 let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
-                a.borrow_mut().grad += (1.0 - t.powi(2)) * self.grad;
+                a.borrow_mut().grad += (1.0 - t.powi(2)) * self_rc.borrow().grad;
+            }
+            Some(Operation::Add(ref a, ref b)) => {
+                a.borrow_mut().grad += self_rc.borrow().grad;
+                b.borrow_mut().grad += self_rc.borrow().grad;
             }
             None => {}
         }
-    }
-}
-
-impl Add for Value {
-    type Output = Value;
-
-    fn add(self, other: Value) -> Value {
-        let mut result = Value::new(self.data + other.data);
-        let op = Some(Operation::Add(
-            Rc::new(RefCell::new(self.clone())),
-            Rc::new(RefCell::new(other.clone())),
-        ));
-        result.op = op;
-        result
     }
 }
 
@@ -78,25 +59,27 @@ impl Display for Value {
     }
 }
 
-impl Mul for Value {
-    type Output = Value;
+impl Add for Value {
+    type Output = Rc<RefCell<Value>>;
 
-    fn mul(self, other: Value) -> Value {
-        let result = Value::new(self.data * other.data);
-        Value {
-            data: result.data,
+    fn add(self, other: Value) -> Self::Output {
+        Rc::new(RefCell::new(Value {
+            data: self.data + other.data,
             grad: 0.0,
-            op: Some(Operation::Mul(
+            op: Some(Operation::Add(
                 Rc::new(RefCell::new(self)),
                 Rc::new(RefCell::new(other)),
             )),
-        }
+        }))
     }
 }
 
 fn main() {
     let x1 = Value::new(2.0);
-    let o = Value::tanh(&x1);
+    let x2 = Value::new(1.0);
+    let x1x2 = x1.as_ptr() + x1.as_ptr();
+    let o = Value::tanh(&x1x2);
+
     o.borrow_mut().grad = 1.0;
     Value::backward(&o);
 
@@ -105,19 +88,19 @@ fn main() {
 }
 
 fn _test() {
-    let x1 = Value::new(2.0);
-    let x2 = Value::new(0.0);
-    let w1 = Value::new(-3.0);
-    let w2 = Value::new(1.0);
-    let b = Value::new(6.8813735870195432);
-    let x1w1 = x1 * w1;
-    let x2w2 = x2 * w2;
-    let x1w1x2w2 = x1w1 + x2w2;
-    let n = x1w1x2w2 + b;
-    let mut o = n.tanh();
-    o.grad = 1.0;
-    o.backward();
+    // let x1 = Value::new(2.0);
+    // let x2 = Value::new(0.0);
+    // let w1 = Value::new(-3.0);
+    // let w2 = Value::new(1.0);
+    // let b = Value::new(6.8813735870195432);
+    // let x1w1 = x1 * w1;
+    // let x2w2 = x2 * w2;
+    // let x1w1x2w2 = x1w1 + x2w2;
+    // let n = x1w1x2w2 + b;
+    // let mut o = n.tanh();
+    // o.grad = 1.0;
+    // o.backward();
 
-    println!("n: {}", n);
-    println!("Output: {:#?}", o);
+    // println!("n: {}", n);
+    // println!("Output: {:#?}", o);
 }
