@@ -5,36 +5,41 @@ use std::{
     rc::Rc,
 };
 
+mod visualize;
+
 #[derive(Debug, Clone)]
-enum Operation {
+pub enum Operation {
     Tanh(Rc<RefCell<Value>>),
     Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
 }
 
 #[derive(Debug, Clone)]
-struct Value {
-    data: Rc<RefCell<f32>>,
-    grad: Rc<RefCell<f32>>,
-    op: Option<Operation>,
+pub struct Value {
+    pub data: Rc<RefCell<f32>>,
+    pub grad: Rc<RefCell<f32>>,
+    pub op: Option<Operation>,
+    pub label: Option<String>,
 }
 
 impl Value {
-    fn new(data: f32) -> Self {
+    fn new(data: f32, label: &str) -> Self {
         Value {
             data: Rc::new(RefCell::new(data)),
             grad: Rc::new(RefCell::new(0.0)),
             op: None,
+            label: Some(label.to_string()),
         }
     }
 
-    fn tanh(&self) -> Self {
+    fn tanh(&self, label: String) -> Self {
         let x = *self.data.borrow();
         let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
         Value {
             data: Rc::new(RefCell::new(t)),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Tanh(Rc::new(RefCell::new(self.clone())))),
+            label: Some(label),
         }
     }
 
@@ -50,8 +55,10 @@ impl Value {
                 *b.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
             }
             Some(Operation::Mul(ref a, ref b)) => {
-                *a.borrow_mut().grad.borrow_mut() += *b.borrow().data.borrow() * *self.grad.borrow();
-                *b.borrow_mut().grad.borrow_mut() += *a.borrow().data.borrow() * *self.grad.borrow();
+                *a.borrow_mut().grad.borrow_mut() +=
+                    *b.borrow().data.borrow() * *self.grad.borrow();
+                *b.borrow_mut().grad.borrow_mut() +=
+                    *a.borrow().data.borrow() * *self.grad.borrow();
             }
             None => {}
         }
@@ -79,6 +86,11 @@ impl Add for Value {
                 Rc::new(RefCell::new(self.clone())),
                 Rc::new(RefCell::new(other.clone())),
             )),
+            label: Some(
+                self.label.clone().unwrap_or_default()
+                    + "+"
+                    + &other.label.clone().unwrap_or_default(),
+            ),
         };
         result
     }
@@ -94,40 +106,33 @@ impl Mul for Value {
                 Rc::new(RefCell::new(self.clone())),
                 Rc::new(RefCell::new(other.clone())),
             )),
+            label: Some(
+                self.label.clone().unwrap_or_default() + &other.label.clone().unwrap_or_default(),
+            ),
         };
         result
     }
 }
 
 fn main() {
-    let x1 = Value::new(2.0);
-    let x2 = Value::new(1.0);
-    let s = x1.clone() * x2.clone();
-    let o = s.tanh();
+    let x1 = Value::new(2.0, "x1");
+    let x2 = Value::new(0.0, "x2");
+    let w1 = Value::new(-3.0, "w1");
+    let w2 = Value::new(1.0, "w2");
+    let b = Value::new(6.8813735870195432, "b");
+    let x1w1 = x1 * w1;
+    let x2w2 = x2 * w2;
+    let x1w1x2w2 = x1w1.clone() + x2w2.clone();
+    let n = x1w1x2w2.clone() + b.clone();
+    let o = n.tanh("o".to_string());
     *o.grad.borrow_mut() = 1.0;
     o.backward();
-    s.backward();
+    n.backward();
+    x1w1x2w2.backward();
+    x2w2.backward();
+    x1w1.backward();
 
-    println!("x1: {}", x1);
-    println!("x2: {}", x2);
-    println!("s: {}", s);
-    println!("Output: {:#?}", o);
-}
-
-fn _test() {
-    // let x1 = Value::new(2.0);
-    // let x2 = Value::new(0.0);
-    // let w1 = Value::new(-3.0);
-    // let w2 = Value::new(1.0);
-    // let b = Value::new(6.8813735870195432);
-    // let x1w1 = x1 * w1;
-    // let x2w2 = x2 * w2;
-    // let x1w1x2w2 = x1w1 + x2w2;
-    // let n = x1w1x2w2 + b;
-    // let mut o = n.tanh();
-    // o.grad = 1.0;
-    // o.backward();
-
-    // println!("n: {}", n);
-    // println!("Output: {:#?}", o);
+    println!("n: {}", n);
+    // Draw the computational graph
+    visualize::draw_dot(&o, "computation_graph");
 }
