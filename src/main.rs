@@ -9,44 +9,49 @@ use std::{
 enum Operation {
     Tanh(Rc<RefCell<Value>>),
     Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
+    Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
 }
 
 #[derive(Debug, Clone)]
 struct Value {
-    data: f32,
-    grad: f32,
+    data: Rc<RefCell<f32>>,
+    grad: Rc<RefCell<f32>>,
     op: Option<Operation>,
 }
 
 impl Value {
-    fn new(data: f32) -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(Value {
-            data,
-            grad: 0.0,
+    fn new(data: f32) -> Self {
+        Value {
+            data: Rc::new(RefCell::new(data)),
+            grad: Rc::new(RefCell::new(0.0)),
             op: None,
-        }))
+        }
     }
 
-    fn tanh(self_rc: &Rc<RefCell<Self>>) -> Rc<RefCell<Self>> {
-        let x = self_rc.borrow().data;
+    fn tanh(&self) -> Self {
+        let x = *self.data.borrow();
         let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
-        Rc::new(RefCell::new(Value {
-            data: t,
-            grad: 0.0,
-            op: Some(Operation::Tanh(Rc::clone(self_rc))),
-        }))
+        Value {
+            data: Rc::new(RefCell::new(t)),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Tanh(Rc::new(RefCell::new(self.clone())))),
+        }
     }
 
-    fn backward(self_rc: &Rc<RefCell<Self>>) {
-        match self_rc.borrow().op {
+    fn backward(&self) {
+        match self.op {
             Some(Operation::Tanh(ref a)) => {
-                let x = self_rc.borrow().data;
+                let x = *a.borrow().data.borrow();
                 let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
-                a.borrow_mut().grad += (1.0 - t.powi(2)) * self_rc.borrow().grad;
+                *a.borrow_mut().grad.borrow_mut() += (1.0 - t.powi(2)) * *self.grad.borrow();
             }
             Some(Operation::Add(ref a, ref b)) => {
-                a.borrow_mut().grad += self_rc.borrow().grad;
-                b.borrow_mut().grad += self_rc.borrow().grad;
+                *a.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
+                *b.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
+            }
+            Some(Operation::Mul(ref a, ref b)) => {
+                *a.borrow_mut().grad.borrow_mut() += *b.borrow().data.borrow() * *self.grad.borrow();
+                *b.borrow_mut().grad.borrow_mut() += *a.borrow().data.borrow() * *self.grad.borrow();
             }
             None => {}
         }
@@ -55,35 +60,57 @@ impl Value {
 
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Value(data={}, grad={})", self.data, self.grad)
+        write!(
+            f,
+            "Value(data={}, grad={})",
+            self.data.borrow(),
+            self.grad.borrow()
+        )
     }
 }
 
 impl Add for Value {
-    type Output = Rc<RefCell<Value>>;
-
-    fn add(self, other: Value) -> Self::Output {
-        Rc::new(RefCell::new(Value {
-            data: self.data + other.data,
-            grad: 0.0,
+    type Output = Value;
+    fn add(self, other: Value) -> Value {
+        let result = Value {
+            data: Rc::new(RefCell::new(*self.data.borrow() + *other.data.borrow())),
+            grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Add(
-                Rc::new(RefCell::new(self)),
-                Rc::new(RefCell::new(other)),
+                Rc::new(RefCell::new(self.clone())),
+                Rc::new(RefCell::new(other.clone())),
             )),
-        }))
+        };
+        result
+    }
+}
+
+impl Mul for Value {
+    type Output = Value;
+    fn mul(self, other: Value) -> Value {
+        let result = Value {
+            data: Rc::new(RefCell::new(*self.data.borrow() * *other.data.borrow())),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Mul(
+                Rc::new(RefCell::new(self.clone())),
+                Rc::new(RefCell::new(other.clone())),
+            )),
+        };
+        result
     }
 }
 
 fn main() {
     let x1 = Value::new(2.0);
     let x2 = Value::new(1.0);
-    let x1x2 = x1.as_ptr() + x1.as_ptr();
-    let o = Value::tanh(&x1x2);
+    let s = x1.clone() * x2.clone();
+    let o = s.tanh();
+    *o.grad.borrow_mut() = 1.0;
+    o.backward();
+    s.backward();
 
-    o.borrow_mut().grad = 1.0;
-    Value::backward(&o);
-
-    println!("x1: {:#?}", x1);
+    println!("x1: {}", x1);
+    println!("x2: {}", x2);
+    println!("s: {}", s);
     println!("Output: {:#?}", o);
 }
 
