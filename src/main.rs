@@ -7,6 +7,88 @@ use std::{
 
 mod visualize;
 
+impl Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Value(data={}, grad={}, label={})",
+            self.data.borrow(),
+            self.grad.borrow(),
+            self.label.as_deref().unwrap_or("None")
+        )
+    }
+}
+
+impl Add for Value {
+    type Output = Value;
+    fn add(self, other: Value) -> Value {
+        let result = Value {
+            data: Rc::new(RefCell::new(*self.data.borrow() + *other.data.borrow())),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Add(
+                Rc::new(RefCell::new(self.clone())),
+                Rc::new(RefCell::new(other.clone())),
+            )),
+            label: Some(
+                self.label.clone().unwrap_or_default()
+                    + "+"
+                    + &other.label.clone().unwrap_or_default(),
+            ),
+        };
+        result
+    }
+}
+
+impl Add<f32> for Value {
+    type Output = Value;
+    fn add(self, other: f32) -> Value {
+        let other_value = Value::new(other, other.to_string().as_str());
+        self + other_value
+    }
+}
+
+impl Add<Value> for f32 {
+    type Output = Value;
+    fn add(self, other: Value) -> Value {
+        let self_value = Value::new(self, self.to_string().as_str());
+        self_value + other
+    }
+}
+
+impl Mul for Value {
+    type Output = Value;
+    fn mul(self, other: Value) -> Value {
+        let result = Value {
+            data: Rc::new(RefCell::new(*self.data.borrow() * *other.data.borrow())),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Mul(
+                Rc::new(RefCell::new(self.clone())),
+                Rc::new(RefCell::new(other.clone())),
+            )),
+            label: Some(
+                self.label.clone().unwrap_or_default() + &other.label.clone().unwrap_or_default(),
+            ),
+        };
+        result
+    }
+}
+
+impl Mul<f32> for Value {
+    type Output = Value;
+    fn mul(self, other: f32) -> Value {
+        let other_value = Value::new(other, other.to_string().as_str());
+        self * other_value
+    }
+}
+
+impl Mul<Value> for f32 {
+    type Output = Value;
+    fn mul(self, other: Value) -> Value {
+        let self_value = Value::new(self, self.to_string().as_str());
+        self_value * other
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Operation {
     Tanh(Rc<RefCell<Value>>),
@@ -74,7 +156,7 @@ impl Value {
 
     fn reversed_topo(&self) -> Vec<Value> {
         let mut nodes = Vec::new();
-        
+
         fn build_topo(v: Value, nodes: &mut Vec<Value>) {
             if let Some(ref op) = v.op {
                 match op {
@@ -93,62 +175,13 @@ impl Value {
             }
             nodes.push(v);
         }
-        
+
         build_topo(self.clone(), &mut nodes);
         nodes.reverse();
         nodes
     }
 }
 
-impl Display for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Value(data={}, grad={}, label={})",
-            self.data.borrow(),
-            self.grad.borrow(),
-            self.label.as_deref().unwrap_or("None")
-        )
-    }
-}
-
-impl Add for Value {
-    type Output = Value;
-    fn add(self, other: Value) -> Value {
-        let result = Value {
-            data: Rc::new(RefCell::new(*self.data.borrow() + *other.data.borrow())),
-            grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Add(
-                Rc::new(RefCell::new(self.clone())),
-                Rc::new(RefCell::new(other.clone())),
-            )),
-            label: Some(
-                self.label.clone().unwrap_or_default()
-                    + "+"
-                    + &other.label.clone().unwrap_or_default(),
-            ),
-        };
-        result
-    }
-}
-
-impl Mul for Value {
-    type Output = Value;
-    fn mul(self, other: Value) -> Value {
-        let result = Value {
-            data: Rc::new(RefCell::new(*self.data.borrow() * *other.data.borrow())),
-            grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Mul(
-                Rc::new(RefCell::new(self.clone())),
-                Rc::new(RefCell::new(other.clone())),
-            )),
-            label: Some(
-                self.label.clone().unwrap_or_default() + &other.label.clone().unwrap_or_default(),
-            ),
-        };
-        result
-    }
-}
 
 fn main() {
     let x1 = Value::new(2.0, "x1");
@@ -173,4 +206,27 @@ fn main() {
     }
     // Draw the computational graph
     visualize::draw_dot(&o, "computation_graph");
+}
+
+fn _test() {
+    let x1 = Value::new(2.0, "x1");
+    let x2 = Value::new(4.0, "x2");
+
+    println!("=== Addition Tests ===");
+    println!("x1 + 3.0 = {}", x1.clone() + 3.0);
+    println!("3.0 + x1 = {}", 3.0 + x1.clone());
+    println!("x1 + x2 = {}", x1.clone() + x2.clone());
+
+    println!("\n=== Multiplication Tests ===");
+    println!("x1 * 5.0 = {}", x1.clone() * 5.0);
+    println!("5.0 * x1 = {}", 5.0 * x1.clone());
+    println!("x1 * x2 = {}", x1.clone() * x2.clone());
+
+    println!("\n=== Combined Operations ===");
+    println!("(x1 + 1.0) * 2.0 = {}", (x1.clone() + 1.0) * 2.0);
+    println!("x1 * x2 + 3.0 = {}", x1.clone() * x2.clone() + 3.0);
+    println!(
+        "2.0 * x1 + 3.0 * x2 = {}",
+        2.0 * x1.clone() + 3.0 * x2.clone()
+    );
 }
