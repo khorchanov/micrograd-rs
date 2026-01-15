@@ -63,15 +63,51 @@ impl Value {
             None => {}
         }
     }
+
+    fn full_backward(&mut self) {
+        let topo = self.reversed_topo();
+        *self.grad.borrow_mut() = 1.0;
+        for node in topo {
+            node.backward();
+        }
+    }
+
+    fn reversed_topo(&self) -> Vec<Value> {
+        let mut nodes = Vec::new();
+        
+        fn build_topo(v: Value, nodes: &mut Vec<Value>) {
+            if let Some(ref op) = v.op {
+                match op {
+                    Operation::Tanh(a) => {
+                        build_topo(a.borrow().clone(), nodes);
+                    }
+                    Operation::Add(a, b) => {
+                        build_topo(a.borrow().clone(), nodes);
+                        build_topo(b.borrow().clone(), nodes);
+                    }
+                    Operation::Mul(a, b) => {
+                        build_topo(a.borrow().clone(), nodes);
+                        build_topo(b.borrow().clone(), nodes);
+                    }
+                }
+            }
+            nodes.push(v);
+        }
+        
+        build_topo(self.clone(), &mut nodes);
+        nodes.reverse();
+        nodes
+    }
 }
 
 impl Display for Value {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Value(data={}, grad={})",
+            "Value(data={}, grad={}, label={})",
             self.data.borrow(),
-            self.grad.borrow()
+            self.grad.borrow(),
+            self.label.as_deref().unwrap_or("None")
         )
     }
 }
@@ -124,15 +160,17 @@ fn main() {
     let x2w2 = x2 * w2;
     let x1w1x2w2 = x1w1.clone() + x2w2.clone();
     let n = x1w1x2w2.clone() + b.clone();
-    let o = n.tanh("o".to_string());
-    *o.grad.borrow_mut() = 1.0;
-    o.backward();
-    n.backward();
-    x1w1x2w2.backward();
-    x2w2.backward();
-    x1w1.backward();
+    let mut o = n.tanh("o".to_string());
+    o.full_backward();
 
     println!("n: {}", n);
+    
+    // Test topo
+    let topo_order = o.reversed_topo();
+    println!("\nTopological order ({} nodes):", topo_order.len());
+    for (i, node) in topo_order.iter().enumerate() {
+        println!("  {}. {}", i + 1, node);
+    }
     // Draw the computational graph
     visualize::draw_dot(&o, "computation_graph");
 }
