@@ -44,7 +44,6 @@ impl Add<f32> for Value {
     fn add(self, other: f32) -> Value {
         let other_value = Value::new(other, other.to_string().as_str());
         self + other_value
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -53,7 +52,6 @@ impl Add<Value> for f32 {
     fn add(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value + other
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -77,7 +75,6 @@ impl Sub<f32> for Value {
     fn sub(self, other: f32) -> Value {
         let other_value = Value::new(other, other.to_string().as_str());
         self - other_value
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -86,7 +83,6 @@ impl Sub<Value> for f32 {
     fn sub(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value - other
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -120,7 +116,6 @@ impl Mul<f32> for Value {
     fn mul(self, other: f32) -> Value {
         let other_value = Value::new(other, other.to_string().as_str());
         self * other_value
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -129,7 +124,6 @@ impl Mul<Value> for f32 {
     fn mul(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value * other
-        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
