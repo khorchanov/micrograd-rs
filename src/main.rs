@@ -1,7 +1,7 @@
 use std::{
     cell::RefCell,
     fmt::Display,
-    ops::{Add, Mul},
+    ops::{Add, Div, Mul},
     rc::Rc,
 };
 
@@ -73,6 +73,13 @@ impl Mul for Value {
     }
 }
 
+impl Div<f32> for Value {
+    type Output = Value;
+    fn div(self, other: f32) -> Value {
+        self * other.powf(-1f32)
+    }
+}
+
 impl Mul<f32> for Value {
     type Output = Value;
     fn mul(self, other: f32) -> Value {
@@ -91,6 +98,8 @@ impl Mul<Value> for f32 {
 
 #[derive(Debug, Clone)]
 pub enum Operation {
+    Pow(Rc<RefCell<Value>>, f32),
+    Exp(Rc<RefCell<Value>>),
     Tanh(Rc<RefCell<Value>>),
     Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
@@ -114,14 +123,38 @@ impl Value {
         }
     }
 
-    fn tanh(&self, label: String) -> Self {
+    fn tanh(&self) -> Self {
         let x = *self.data.borrow();
         let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
         Value {
             data: Rc::new(RefCell::new(t)),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Tanh(Rc::new(RefCell::new(self.clone())))),
-            label: Some(label),
+            label: Some(format!("tan({})", &self.label.clone().unwrap_or_default())),
+        }
+    }
+
+    fn exp(&self) -> Self {
+        let x = *self.data.borrow();
+        Value {
+            data: Rc::new(RefCell::new(x.exp())),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Exp(Rc::new(RefCell::new(self.clone())))),
+            label: Some(format!("e^({})", &self.label.clone().unwrap_or_default())),
+        }
+    }
+
+    fn pow(&self, k: f32) -> Self {
+        let x = *self.data.borrow();
+        Value {
+            data: Rc::new(RefCell::new(x.powf(k))),
+            grad: Rc::new(RefCell::new(0.0)),
+            op: Some(Operation::Pow(Rc::new(RefCell::new(self.clone())), k)),
+            label: Some(format!(
+                "({})^({})",
+                &self.label.clone().unwrap_or_default(),
+                k
+            )),
         }
     }
 
@@ -131,6 +164,14 @@ impl Value {
                 let x = *a.borrow().data.borrow();
                 let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
                 *a.borrow_mut().grad.borrow_mut() += (1.0 - t.powi(2)) * *self.grad.borrow();
+            }
+            Some(Operation::Exp(ref a)) => {
+                let x = *a.borrow().data.borrow();
+                *a.borrow_mut().grad.borrow_mut() += x * *self.grad.borrow();
+            }
+            Some(Operation::Pow(ref a, k)) => {
+                let x = *a.borrow().data.borrow();
+                *a.borrow_mut().grad.borrow_mut() += k * x.powf(k - 1f32) * *self.grad.borrow();
             }
             Some(Operation::Add(ref a, ref b)) => {
                 *a.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
@@ -171,6 +212,8 @@ impl Value {
                         build_topo(a.borrow().clone(), nodes);
                         build_topo(b.borrow().clone(), nodes);
                     }
+                    Operation::Exp(a) => build_topo(a.borrow().clone(), nodes),
+                    Operation::Pow(a, _) => build_topo(a.borrow().clone(), nodes),
                 }
             }
             nodes.push(v);
@@ -182,7 +225,6 @@ impl Value {
     }
 }
 
-
 fn main() {
     let x1 = Value::new(2.0, "x1");
     let x2 = Value::new(0.0, "x2");
@@ -193,11 +235,14 @@ fn main() {
     let x2w2 = x2 * w2;
     let x1w1x2w2 = x1w1.clone() + x2w2.clone();
     let n = x1w1x2w2.clone() + b.clone();
-    let mut o = n.tanh("o".to_string());
+    let n1 = n.exp();
+    let n2 = n1.pow(2f32);
+    let n3 = n2 / 2f32;
+    let mut o = n3.tanh();
     o.full_backward();
 
     println!("n: {}", n);
-    
+
     // Test topo
     let topo_order = o.reversed_topo();
     println!("\nTopological order ({} nodes):", topo_order.len());
@@ -206,6 +251,7 @@ fn main() {
     }
     // Draw the computational graph
     visualize::draw_dot(&o, "computation_graph");
+    _test();
 }
 
 fn _test() {
@@ -229,4 +275,7 @@ fn _test() {
         "2.0 * x1 + 3.0 * x2 = {}",
         2.0 * x1.clone() + 3.0 * x2.clone()
     );
+
+    println!("exp(x2) = {}", x2.clone().exp());
+    println!("x2² = {}", x2.clone().pow(2f32));
 }

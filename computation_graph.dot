@@ -1,31 +1,45 @@
 strict digraph computation_graph {
-  n0[label="o|data=0.7071|grad=1.0000",shape=record]
+  n0[label="tan((e^(x1w1+x2w2+b))^(2)0.5)|data=0.9941|grad=1.0000",shape=record]
   n0_op[label="tanh",shape=circle]
   n0_op -> n0
   n1 -> n0_op
-  n1[label="x1w1+x2w2+b|data=0.8814|grad=0.5000",shape=record]
-  n1_op[label="+",shape=circle]
+  n1[label="(e^(x1w1+x2w2+b))^(2)0.5|data=2.9142|grad=0.0117",shape=record]
+  n1_op[label="x",shape=circle]
   n1_op -> n1
   n2 -> n1_op
-  n2[label="x1w1+x2w2|data=-6.0000|grad=0.5000",shape=record]
-  n2_op[label="+",shape=circle]
+  n2[label="(e^(x1w1+x2w2+b))^(2)|data=5.8284|grad=0.0059",shape=record]
+  n2_op[label="pow",shape=circle]
   n2_op -> n2
   n3 -> n2_op
-  n3[label="x1w1|data=-6.0000|grad=0.5000",shape=record]
-  n3_op[label="x",shape=circle]
+  n3[label="e^(x1w1+x2w2+b)|data=2.4142|grad=0.0283",shape=record]
+  n3_op[label="exp",shape=circle]
   n3_op -> n3
   n4 -> n3_op
-  n4[label="x1|data=2.0000|grad=-1.5000",shape=record]
-  n5 -> n3_op
-  n5[label="w1|data=-3.0000|grad=1.0000",shape=record]
-  n6 -> n2_op
-  n6[label="x2w2|data=0.0000|grad=0.5000",shape=record]
+  n4[label="x1w1+x2w2+b|data=0.8814|grad=0.0249",shape=record]
+  n4_op[label="+",shape=circle]
+  n4_op -> n4
+  n5 -> n4_op
+  n5[label="x1w1+x2w2|data=-6.0000|grad=0.0249",shape=record]
+  n5_op[label="+",shape=circle]
+  n5_op -> n5
+  n6 -> n5_op
+  n6[label="x1w1|data=-6.0000|grad=0.0249",shape=record]
   n6_op[label="x",shape=circle]
   n6_op -> n6
   n7 -> n6_op
-  n7[label="x2|data=0.0000|grad=0.5000",shape=record]
+  n7[label="x1|data=2.0000|grad=-0.0747",shape=record]
   n8 -> n6_op
-  n8[label="w2|data=1.0000|grad=0.0000",shape=record]
-  n9 -> n1_op
-  n9[label="b|data=6.8814|grad=0.5000",shape=record]
+  n8[label="w1|data=-3.0000|grad=0.0498",shape=record]
+  n9 -> n5_op
+  n9[label="x2w2|data=0.0000|grad=0.0249",shape=record]
+  n9_op[label="x",shape=circle]
+  n9_op -> n9
+  n10 -> n9_op
+  n10[label="x2|data=0.0000|grad=0.0249",shape=record]
+  n11 -> n9_op
+  n11[label="w2|data=1.0000|grad=0.0000",shape=record]
+  n12 -> n4_op
+  n12[label="b|data=6.8814|grad=0.0249",shape=record]
+  n13 -> n1_op
+  n13[label="0.5|data=0.5000|grad=0.0682",shape=record]
 }
