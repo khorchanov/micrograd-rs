@@ -1,7 +1,7 @@
 use std::{
     cell::RefCell,
     fmt::Display,
-    ops::{Add, Div, Mul},
+    ops::{Add, Div, Mul, Neg, Sub},
     rc::Rc,
 };
 
@@ -44,6 +44,7 @@ impl Add<f32> for Value {
     fn add(self, other: f32) -> Value {
         let other_value = Value::new(other, other.to_string().as_str());
         self + other_value
+        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -52,6 +53,40 @@ impl Add<Value> for f32 {
     fn add(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value + other
+        //TODO: Beware of wrong Value, needs custom operation
+    }
+}
+
+impl Neg for Value {
+    type Output = Value;
+
+    fn neg(self) -> Self::Output {
+        self * -1f32
+    }
+}
+
+impl Sub for Value {
+    type Output = Value;
+    fn sub(self, other: Value) -> Value {
+        self + -other
+    }
+}
+
+impl Sub<f32> for Value {
+    type Output = Value;
+    fn sub(self, other: f32) -> Value {
+        let other_value = Value::new(other, other.to_string().as_str());
+        self - other_value
+        //TODO: Beware of wrong Value, needs custom operation
+    }
+}
+
+impl Sub<Value> for f32 {
+    type Output = Value;
+    fn sub(self, other: Value) -> Value {
+        let self_value = Value::new(self, self.to_string().as_str());
+        self_value - other
+        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -85,6 +120,7 @@ impl Mul<f32> for Value {
     fn mul(self, other: f32) -> Value {
         let other_value = Value::new(other, other.to_string().as_str());
         self * other_value
+        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -93,6 +129,7 @@ impl Mul<Value> for f32 {
     fn mul(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value * other
+        //TODO: Beware of wrong Value, needs custom operation
     }
 }
 
@@ -278,4 +315,6 @@ fn _test() {
 
     println!("exp(x2) = {}", x2.clone().exp());
     println!("x2² = {}", x2.clone().pow(2f32));
+    println!("x1 - 1.0 = {}", x1.clone() - 1.0);
+    println!("x1 - x2 = {}", x1.clone() - x2.clone());
 }
