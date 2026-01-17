@@ -75,10 +75,7 @@ pub fn draw_dot(root: &Value, filename: &str) {
                 Operation::Mul(a, b) => (r#""x""#, vec![a, b]),
                 Operation::Tanh(a) => ("\"tanh\"", vec![a]),
                 Operation::Exp(a) => ("\"exp\"", vec![a]),
-                Operation::Pow(a, k) => {
-                    let ss = r#""pow""#;
-                    (ss, vec![a])
-                }
+                Operation::Pow(a, k) => (r#""pow""#, vec![a, k]),
             };
 
             graph.add_stmt(Stmt::Node(

@@ -104,6 +104,13 @@ impl Mul for Value {
     }
 }
 
+impl Div for Value {
+    type Output = Value;
+    fn div(self, other: Value) -> Value {
+        self * other.powf(-1f32)
+    }
+}
+
 impl Div<f32> for Value {
     type Output = Value;
     fn div(self, other: f32) -> Value {
@@ -129,7 +136,7 @@ impl Mul<Value> for f32 {
 
 #[derive(Debug, Clone)]
 pub enum Operation {
-    Pow(Rc<RefCell<Value>>, f32),
+    Pow(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Exp(Rc<RefCell<Value>>),
     Tanh(Rc<RefCell<Value>>),
     Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
@@ -175,18 +182,26 @@ impl Value {
         }
     }
 
-    fn pow(&self, k: f32) -> Self {
+    fn pow(&self, other: Value) -> Self {
         let x = *self.data.borrow();
         Value {
-            data: Rc::new(RefCell::new(x.powf(k))),
+            data: Rc::new(RefCell::new(x.powf(*other.data.borrow()))),
             grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Pow(Rc::new(RefCell::new(self.clone())), k)),
+            op: Some(Operation::Pow(
+                Rc::new(RefCell::new(self.clone())),
+                Rc::new(RefCell::new(other.clone())),
+            )),
             label: Some(format!(
                 "({})^({})",
                 &self.label.clone().unwrap_or_default(),
-                k
+                *other.data.borrow()
             )),
         }
+    }
+
+    fn powf(&self, other: f32) -> Self {
+        let other_value = Value::new(other, other.to_string().as_str());
+        self.pow(other_value)
     }
 
     fn backward(&self) {
@@ -200,8 +215,9 @@ impl Value {
                 let x = *a.borrow().data.borrow();
                 *a.borrow_mut().grad.borrow_mut() += x * *self.grad.borrow();
             }
-            Some(Operation::Pow(ref a, k)) => {
+            Some(Operation::Pow(ref a, ref k)) => {
                 let x = *a.borrow().data.borrow();
+                let k = *k.borrow().data.borrow();
                 *a.borrow_mut().grad.borrow_mut() += k * x.powf(k - 1f32) * *self.grad.borrow();
             }
             Some(Operation::Add(ref a, ref b)) => {
@@ -266,10 +282,8 @@ fn main() {
     let x2w2 = x2 * w2;
     let x1w1x2w2 = x1w1.clone() + x2w2.clone();
     let n = x1w1x2w2.clone() + b.clone();
-    let n1 = n.exp();
-    let n2 = n1.pow(2f32);
-    let n3 = n2 / 2f32;
-    let mut o = n3.tanh();
+    let e = (2f32 * n.clone()).exp();
+    let mut o = (e.clone() - 1f32) / (e + 1f32);
     o.full_backward();
 
     println!("n: {}", n);
@@ -308,7 +322,7 @@ fn _test() {
     );
 
     println!("exp(x2) = {}", x2.clone().exp());
-    println!("x2² = {}", x2.clone().pow(2f32));
+    println!("x2² = {}", x2.clone().powf(2f32));
     println!("x1 - 1.0 = {}", x1.clone() - 1.0);
     println!("x1 - x2 = {}", x1.clone() - x2.clone());
 }

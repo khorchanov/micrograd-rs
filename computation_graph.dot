@@ -1,45 +1,66 @@
 strict digraph computation_graph {
-  n0[label="tan((e^(x1w1+x2w2+b))^(2)0.5)|data=0.9941|grad=1.0000",shape=record]
-  n0_op[label="tanh",shape=circle]
+  n0[label="e^(2x1w1+x2w2+b)+1-1(e^(2x1w1+x2w2+b)+1)^(-1)|data=0.7071|grad=1.0000",shape=record]
+  n0_op[label="x",shape=circle]
   n0_op -> n0
   n1 -> n0_op
-  n1[label="(e^(x1w1+x2w2+b))^(2)0.5|data=2.9142|grad=0.0117",shape=record]
-  n1_op[label="x",shape=circle]
+  n1[label="e^(2x1w1+x2w2+b)+1-1|data=4.8284|grad=0.1464",shape=record]
+  n1_op[label="+",shape=circle]
   n1_op -> n1
   n2 -> n1_op
-  n2[label="(e^(x1w1+x2w2+b))^(2)|data=5.8284|grad=0.0059",shape=record]
-  n2_op[label="pow",shape=circle]
+  n2[label="e^(2x1w1+x2w2+b)|data=5.8284|grad=0.0429",shape=record]
+  n2_op[label="exp",shape=circle]
   n2_op -> n2
   n3 -> n2_op
-  n3[label="e^(x1w1+x2w2+b)|data=2.4142|grad=0.0283",shape=record]
-  n3_op[label="exp",shape=circle]
+  n3[label="2x1w1+x2w2+b|data=1.7627|grad=-0.1069",shape=record]
+  n3_op[label="x",shape=circle]
   n3_op -> n3
   n4 -> n3_op
-  n4[label="x1w1+x2w2+b|data=0.8814|grad=0.0249",shape=record]
-  n4_op[label="+",shape=circle]
-  n4_op -> n4
-  n5 -> n4_op
-  n5[label="x1w1+x2w2|data=-6.0000|grad=0.0249",shape=record]
+  n4[label="2|data=2.0000|grad=-0.2551",shape=record]
+  n5 -> n3_op
+  n5[label="x1w1+x2w2+b|data=0.8814|grad=-0.5789",shape=record]
   n5_op[label="+",shape=circle]
   n5_op -> n5
   n6 -> n5_op
-  n6[label="x1w1|data=-6.0000|grad=0.0249",shape=record]
-  n6_op[label="x",shape=circle]
+  n6[label="x1w1+x2w2|data=-6.0000|grad=-0.9440",shape=record]
+  n6_op[label="+",shape=circle]
   n6_op -> n6
   n7 -> n6_op
-  n7[label="x1|data=2.0000|grad=-0.0747",shape=record]
-  n8 -> n6_op
-  n8[label="w1|data=-3.0000|grad=0.0498",shape=record]
-  n9 -> n5_op
-  n9[label="x2w2|data=0.0000|grad=0.0249",shape=record]
-  n9_op[label="x",shape=circle]
-  n9_op -> n9
-  n10 -> n9_op
-  n10[label="x2|data=0.0000|grad=0.0249",shape=record]
-  n11 -> n9_op
-  n11[label="w2|data=1.0000|grad=0.0000",shape=record]
-  n12 -> n4_op
-  n12[label="b|data=6.8814|grad=0.0249",shape=record]
-  n13 -> n1_op
-  n13[label="0.5|data=0.5000|grad=0.0682",shape=record]
+  n7[label="x1w1|data=-6.0000|grad=-1.3091",shape=record]
+  n7_op[label="x",shape=circle]
+  n7_op -> n7
+  n8 -> n7_op
+  n8[label="x1|data=2.0000|grad=5.0225",shape=record]
+  n9 -> n7_op
+  n9[label="w1|data=-3.0000|grad=-3.3483",shape=record]
+  n10 -> n6_op
+  n10[label="x2w2|data=0.0000|grad=-1.3091",shape=record]
+  n10_op[label="x",shape=circle]
+  n10_op -> n10
+  n11 -> n10_op
+  n11[label="x2|data=0.0000|grad=-1.6742",shape=record]
+  n12 -> n10_op
+  n12[label="w2|data=1.0000|grad=0.0000",shape=record]
+  n13 -> n5_op
+  n13[label="b|data=6.8814|grad=-0.9440",shape=record]
+  n14 -> n1_op
+  n14[label="1-1|data=-1.0000|grad=0.1464",shape=record]
+  n14_op[label="x",shape=circle]
+  n14_op -> n14
+  n15 -> n14_op
+  n15[label="1|data=1.0000|grad=-0.1464",shape=record]
+  n16 -> n14_op
+  n16[label="-1|data=-1.0000|grad=0.1464",shape=record]
+  n17 -> n0_op
+  n17[label="(e^(2x1w1+x2w2+b)+1)^(-1)|data=0.1464|grad=4.8284",shape=record]
+  n17_op[label="pow",shape=circle]
+  n17_op -> n17
+  n18 -> n17_op
+  n18[label="e^(2x1w1+x2w2+b)+1|data=6.8284|grad=-0.1036",shape=record]
+  n18_op[label="+",shape=circle]
+  n18_op -> n18
+  n2 -> n18_op
+  n19 -> n18_op
+  n19[label="1|data=1.0000|grad=-0.1036",shape=record]
+  n20 -> n17_op
+  n20[label="-1|data=-1.0000|grad=0.0000",shape=record]
 }
