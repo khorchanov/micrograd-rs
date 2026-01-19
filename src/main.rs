@@ -207,10 +207,9 @@ impl Value {
     fn backward(&self) {
         match self.op {
             Some(Operation::Tanh(ref a)) => {
-                let x = *self.data.borrow();
-                let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
-                // cal also use 1 - tanh^2(self.data)
-                *a.borrow_mut().grad.borrow_mut() += (1.0 - t.powi(2)) * *self.grad.borrow();
+                let x = *a.borrow().data.borrow();
+                let tanh = x.tanh();
+                *a.borrow_mut().grad.borrow_mut() += (1.0 - tanh.powi(2)) * *self.grad.borrow();
             }
             Some(Operation::Exp(ref a)) => {
                 *a.borrow_mut().grad.borrow_mut() += *self.data.borrow() * *self.grad.borrow();
