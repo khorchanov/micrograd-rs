@@ -207,13 +207,13 @@ impl Value {
     fn backward(&self) {
         match self.op {
             Some(Operation::Tanh(ref a)) => {
-                let x = *a.borrow().data.borrow();
+                let x = *self.data.borrow();
                 let t = ((2.0 * x).exp() - 1.0) / ((2.0 * x).exp() + 1.0);
+                // cal also use 1 - tanh^2(self.data)
                 *a.borrow_mut().grad.borrow_mut() += (1.0 - t.powi(2)) * *self.grad.borrow();
             }
             Some(Operation::Exp(ref a)) => {
-                let x = *a.borrow().data.borrow();
-                *a.borrow_mut().grad.borrow_mut() += x * *self.grad.borrow();
+                *a.borrow_mut().grad.borrow_mut() += *self.data.borrow() * *self.grad.borrow();
             }
             Some(Operation::Pow(ref a, ref k)) => {
                 let x = *a.borrow().data.borrow();
@@ -248,19 +248,11 @@ impl Value {
         fn build_topo(v: Value, nodes: &mut Vec<Value>) {
             if let Some(ref op) = v.op {
                 match op {
-                    Operation::Tanh(a) => {
-                        build_topo(a.borrow().clone(), nodes);
-                    }
-                    Operation::Add(a, b) => {
+                    Operation::Add(a, b) | Operation::Mul(a, b) | Operation::Pow(a, b) => {
                         build_topo(a.borrow().clone(), nodes);
                         build_topo(b.borrow().clone(), nodes);
                     }
-                    Operation::Mul(a, b) => {
-                        build_topo(a.borrow().clone(), nodes);
-                        build_topo(b.borrow().clone(), nodes);
-                    }
-                    Operation::Exp(a) => build_topo(a.borrow().clone(), nodes),
-                    Operation::Pow(a, _) => build_topo(a.borrow().clone(), nodes),
+                    Operation::Tanh(a) | Operation::Exp(a) => build_topo(a.borrow().clone(), nodes),
                 }
             }
             nodes.push(v);
@@ -295,34 +287,13 @@ fn main() {
         println!("  {}. {}", i + 1, node);
     }
     // Draw the computational graph
-    visualize::draw_dot(&o, "computation_graph");
     _test();
 }
 
 fn _test() {
-    let x1 = Value::new(2.0, "x1");
-    let x2 = Value::new(4.0, "x2");
-
-    println!("=== Addition Tests ===");
-    println!("x1 + 3.0 = {}", x1.clone() + 3.0);
-    println!("3.0 + x1 = {}", 3.0 + x1.clone());
-    println!("x1 + x2 = {}", x1.clone() + x2.clone());
-
-    println!("\n=== Multiplication Tests ===");
-    println!("x1 * 5.0 = {}", x1.clone() * 5.0);
-    println!("5.0 * x1 = {}", 5.0 * x1.clone());
-    println!("x1 * x2 = {}", x1.clone() * x2.clone());
-
-    println!("\n=== Combined Operations ===");
-    println!("(x1 + 1.0) * 2.0 = {}", (x1.clone() + 1.0) * 2.0);
-    println!("x1 * x2 + 3.0 = {}", x1.clone() * x2.clone() + 3.0);
-    println!(
-        "2.0 * x1 + 3.0 * x2 = {}",
-        2.0 * x1.clone() + 3.0 * x2.clone()
-    );
-
-    println!("exp(x2) = {}", x2.clone().exp());
-    println!("x2² = {}", x2.clone().powf(2f32));
-    println!("x1 - 1.0 = {}", x1.clone() - 1.0);
-    println!("x1 - x2 = {}", x1.clone() - x2.clone());
+    let x1 = Value::new(0.6931471805599453, "x1");
+    let mut e = x1.tanh();
+    e.full_backward();
+    print!("e: {}\n", e);
+    visualize::draw_dot(&e, "computation_graph");
 }
