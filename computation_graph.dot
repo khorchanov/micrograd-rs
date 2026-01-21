@@ -3,5 +3,5 @@ strict digraph computation_graph {
   n0_op[label="tanh",shape=circle]
   n0_op -> n0
   n1 -> n0_op
-  n1[label="x1|data=0.6931|grad=0.7116",shape=record]
+  n1[label="x1|data=0.6931|grad=0.6400",shape=record]
 }

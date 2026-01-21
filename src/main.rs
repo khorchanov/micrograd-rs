@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 use std::{
     cell::RefCell,
     fmt::Display,
@@ -5,6 +7,9 @@ use std::{
     rc::Rc,
 };
 
+use crate::neuron::Neuron;
+
+mod neuron;
 mod visualize;
 
 impl Display for Value {
@@ -136,9 +141,9 @@ impl Mul<Value> for f32 {
 
 #[derive(Debug, Clone)]
 pub enum Operation {
-    Pow(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
-    Exp(Rc<RefCell<Value>>),
     Tanh(Rc<RefCell<Value>>),
+    Exp(Rc<RefCell<Value>>),
+    Pow(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
     Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
 }
@@ -264,35 +269,8 @@ impl Value {
 }
 
 fn main() {
-    let x1 = Value::new(2.0, "x1");
-    let x2 = Value::new(0.0, "x2");
-    let w1 = Value::new(-3.0, "w1");
-    let w2 = Value::new(1.0, "w2");
-    let b = Value::new(6.8813735870195432, "b");
-    let x1w1 = x1 * w1;
-    let x2w2 = x2 * w2;
-    let x1w1x2w2 = x1w1.clone() + x2w2.clone();
-    let n = x1w1x2w2.clone() + b.clone();
-    let e = (2f32 * n.clone()).exp();
-    let mut o = (e.clone() - 1f32) / (e + 1f32);
-    o.full_backward();
-
-    println!("n: {}", n);
-
-    // Test topo
-    let topo_order = o.reversed_topo();
-    println!("\nTopological order ({} nodes):", topo_order.len());
-    for (i, node) in topo_order.iter().enumerate() {
-        println!("  {}. {}", i + 1, node);
-    }
-    // Draw the computational graph
-    _test();
-}
-
-fn _test() {
-    let x1 = Value::new(0.6931471805599453, "x1");
-    let mut e = x1.tanh();
-    e.full_backward();
-    print!("e: {}\n", e);
-    visualize::draw_dot(&e, "computation_graph");
+    let neuron = Neuron::<2>::new();
+    let x = [Value::new(1.0, "x1"), Value::new(2.0, "x2")];
+    let output = neuron.call(&x);
+    println!("Neuron output: {}", output);
 }
