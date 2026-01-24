@@ -24,3 +24,18 @@ impl<const N: usize> Neuron<N> {
         act.tanh()
     }
 }
+
+pub struct Layer<const N: usize, const M: usize> {
+    pub neurons: [Neuron<N>; M],
+}
+
+impl<const N: usize, const M: usize> Layer<N, M> {
+    pub fn new() -> Layer<N, M> {
+        let neurons = std::array::from_fn(|_| Neuron::<N>::new());
+        Layer { neurons }
+    }
+
+    pub fn call(&self, x: &[Value; N]) -> [Value; M] {
+        std::array::from_fn(|i| self.neurons[i].call(x))
+    }
+}
