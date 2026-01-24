@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::Value;
+use crate::value::Value;
 
 pub struct Neuron<const N: usize> {
     pub w: [Value; N],

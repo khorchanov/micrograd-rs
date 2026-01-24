@@ -11,7 +11,7 @@ use graphviz_rust::{
     printer::{DotPrinter, PrinterContext},
 };
 
-use crate::{Operation, Value};
+use crate::value::{Operation, Value};
 
 pub fn draw_dot(root: &Value, filename: &str) {
     let mut graph = graph!(strict di id!("computation_graph"));
