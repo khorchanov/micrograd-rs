@@ -8,11 +8,11 @@ pub mod ops;
 
 #[derive(Debug, Clone)]
 pub enum Operation {
-    Tanh(Rc<RefCell<Value>>),
-    Exp(Rc<RefCell<Value>>),
-    Pow(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
-    Add(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
-    Mul(Rc<RefCell<Value>>, Rc<RefCell<Value>>),
+    Tanh(Box<Value>),
+    Exp(Box<Value>),
+    Pow(Box<Value>, Box<Value>),
+    Add(Box<Value>, Box<Value>),
+    Mul(Box<Value>, Box<Value>),
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +39,7 @@ impl Value {
         Value {
             data: Rc::new(RefCell::new(t)),
             grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Tanh(Rc::new(RefCell::new(self.clone())))),
+            op: Some(Operation::Tanh(Box::new(self.clone()))),
             label: Some(format!("tan({})", &self.label.clone().unwrap_or_default())),
         }
     }
@@ -49,7 +49,7 @@ impl Value {
         Value {
             data: Rc::new(RefCell::new(x.exp())),
             grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Exp(Rc::new(RefCell::new(self.clone())))),
+            op: Some(Operation::Exp(Box::new(self.clone()))),
             label: Some(format!("e^({})", &self.label.clone().unwrap_or_default())),
         }
     }
@@ -60,8 +60,8 @@ impl Value {
             data: Rc::new(RefCell::new(x.powf(*other.data.borrow()))),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Pow(
-                Rc::new(RefCell::new(self.clone())),
-                Rc::new(RefCell::new(other.clone())),
+                Box::new(self.clone()),
+                Box::new(other.clone()),
             )),
             label: Some(format!(
                 "({})^({})",
@@ -79,27 +79,25 @@ impl Value {
     pub fn backward(&self) {
         match self.op {
             Some(Operation::Tanh(ref a)) => {
-                let x = *a.borrow().data.borrow();
+                let x = *a.data.borrow();
                 let tanh = x.tanh();
-                *a.borrow_mut().grad.borrow_mut() += (1.0 - tanh.powi(2)) * *self.grad.borrow();
+                *a.grad.borrow_mut() += (1.0 - tanh.powi(2)) * *self.grad.borrow();
             }
             Some(Operation::Exp(ref a)) => {
-                *a.borrow_mut().grad.borrow_mut() += *self.data.borrow() * *self.grad.borrow();
+                *a.grad.borrow_mut() += *self.data.borrow() * *self.grad.borrow();
             }
             Some(Operation::Pow(ref a, ref k)) => {
-                let x = *a.borrow().data.borrow();
-                let k = *k.borrow().data.borrow();
-                *a.borrow_mut().grad.borrow_mut() += k * x.powf(k - 1f32) * *self.grad.borrow();
+                let x = *a.data.borrow();
+                let k_val = *k.data.borrow();
+                *a.grad.borrow_mut() += k_val * x.powf(k_val - 1f32) * *self.grad.borrow();
             }
             Some(Operation::Add(ref a, ref b)) => {
-                *a.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
-                *b.borrow_mut().grad.borrow_mut() += *self.grad.borrow();
+                *a.grad.borrow_mut() += *self.grad.borrow();
+                *b.grad.borrow_mut() += *self.grad.borrow();
             }
             Some(Operation::Mul(ref a, ref b)) => {
-                *a.borrow_mut().grad.borrow_mut() +=
-                    *b.borrow().data.borrow() * *self.grad.borrow();
-                *b.borrow_mut().grad.borrow_mut() +=
-                    *a.borrow().data.borrow() * *self.grad.borrow();
+                *a.grad.borrow_mut() += *b.data.borrow() * *self.grad.borrow();
+                *b.grad.borrow_mut() += *a.data.borrow() * *self.grad.borrow();
             }
             None => {}
         }
@@ -120,10 +118,10 @@ impl Value {
             if let Some(ref op) = v.op {
                 match op {
                     Operation::Add(a, b) | Operation::Mul(a, b) | Operation::Pow(a, b) => {
-                        build_topo(a.borrow().clone(), nodes);
-                        build_topo(b.borrow().clone(), nodes);
+                        build_topo((**a).clone(), nodes);
+                        build_topo((**b).clone(), nodes);
                     }
-                    Operation::Tanh(a) | Operation::Exp(a) => build_topo(a.borrow().clone(), nodes),
+                    Operation::Tanh(a) | Operation::Exp(a) => build_topo((**a).clone(), nodes),
                 }
             }
             nodes.push(v);

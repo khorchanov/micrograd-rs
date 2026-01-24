@@ -1,7 +1,9 @@
 strict digraph computation_graph {
-  n0[label="tan(x1)|data=0.6000|grad=1.0000",shape=record]
-  n0_op[label="tanh",shape=circle]
+  n0[label="x1x2|data=2.0000|grad=1.0000",shape=record]
+  n0_op[label="x",shape=circle]
   n0_op -> n0
   n1 -> n0_op
-  n1[label="x1|data=0.6931|grad=0.6400",shape=record]
+  n1[label="x1|data=1.0000|grad=2.0000",shape=record]
+  n2 -> n0_op
+  n2[label="x2|data=2.0000|grad=1.0000",shape=record]
 }

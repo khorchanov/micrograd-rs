@@ -86,12 +86,12 @@ pub fn draw_dot(root: &Value, filename: &str) {
             ));
 
             for child in children {
-                let child_borrowed = child.borrow();
-                let child_id = get_node_id(&child_borrowed, node_ids, node_counter);
+                let child_borrowed = &**child;
+                let child_id = get_node_id(child_borrowed, node_ids, node_counter);
                 graph.add_stmt(Stmt::Edge(
                     edge!(node_id!(child_id.clone()) => node_id!(op_id.clone())),
                 ));
-                trace(&child_borrowed, graph, visited, node_ids, node_counter);
+                trace(child_borrowed, graph, visited, node_ids, node_counter);
             }
         }
     }
