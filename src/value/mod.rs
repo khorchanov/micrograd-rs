@@ -8,11 +8,11 @@ pub mod ops;
 
 #[derive(Debug, Clone)]
 pub enum Operation {
-    Tanh(Box<Value>),
-    Exp(Box<Value>),
-    Pow(Box<Value>, Box<Value>),
-    Add(Box<Value>, Box<Value>),
-    Mul(Box<Value>, Box<Value>),
+    Tanh(Rc<Value>),
+    Exp(Rc<Value>),
+    Pow(Rc<Value>, Rc<Value>),
+    Add(Rc<Value>, Rc<Value>),
+    Mul(Rc<Value>, Rc<Value>),
 }
 
 #[derive(Debug, Clone)]
@@ -39,7 +39,7 @@ impl Value {
         Value {
             data: Rc::new(RefCell::new(t)),
             grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Tanh(Box::new(self.clone()))),
+            op: Some(Operation::Tanh(Rc::new(self.clone()))),
             label: Some(format!("tan({})", &self.label.clone().unwrap_or_default())),
         }
     }
@@ -49,7 +49,7 @@ impl Value {
         Value {
             data: Rc::new(RefCell::new(x.exp())),
             grad: Rc::new(RefCell::new(0.0)),
-            op: Some(Operation::Exp(Box::new(self.clone()))),
+            op: Some(Operation::Exp(Rc::new(self.clone()))),
             label: Some(format!("e^({})", &self.label.clone().unwrap_or_default())),
         }
     }
@@ -60,8 +60,8 @@ impl Value {
             data: Rc::new(RefCell::new(x.powf(*other.data.borrow()))),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Pow(
-                Box::new(self.clone()),
-                Box::new(other.clone()),
+                Rc::new(self.clone()),
+                Rc::new(other.clone()),
             )),
             label: Some(format!(
                 "({})^({})",

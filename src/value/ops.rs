@@ -13,8 +13,8 @@ impl Add for Value {
             data: Rc::new(RefCell::new(*self.data.borrow() + *other.data.borrow())),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Add(
-                Box::new(self.clone()),
-                Box::new(other.clone()),
+                Rc::new(self.clone()),
+                Rc::new(other.clone()),
             )),
             label: Some(
                 self.label.clone().unwrap_or_default()
@@ -80,8 +80,8 @@ impl Mul for Value {
             data: Rc::new(RefCell::new(*self.data.borrow() * *other.data.borrow())),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Mul(
-                Box::new(self.clone()),
-                Box::new(other.clone()),
+                Rc::new(self.clone()),
+                Rc::new(other.clone()),
             )),
             label: Some(
                 self.label.clone().unwrap_or_default() + &other.label.clone().unwrap_or_default(),
