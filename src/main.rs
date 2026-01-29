@@ -40,4 +40,5 @@ fn main() {
     loss.full_backward();
 
     println!("Loss: {}", loss.data.borrow());
+    println!("Number of parameters: {}", params.len());
 }

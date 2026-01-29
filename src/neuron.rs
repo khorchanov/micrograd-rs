@@ -43,7 +43,7 @@ macro_rules! mlp {
     // Extract the output dimension (last in the list)
     (@get_output [$($all:literal),+] -> $last:literal) => {{
         move |input: &[Value; mlp!(@first $($all),+)], ps: &mut Vec<Value>| -> [Value; $last] {
-            mlp!(@chain_layers input, [$($all),+])
+            mlp!(@chain_layers input, ps, [$($all),+])
         }
     }};
     (@get_output [$($all:literal),+] -> $first:literal, $($rest:literal),+) => {{
@@ -54,18 +54,18 @@ macro_rules! mlp {
     (@first $first:literal $(, $rest:literal)*) => { $first };
 
     // Chain layers: base case with just two dimensions (one layer)
-    (@chain_layers $input:expr, [$in:literal, $out:literal]) => {{
+    (@chain_layers $input:expr, $ps:expr, [$in:literal, $out:literal]) => {{
         let layer = Layer::<$in, $out>::new();
-        ps.push(1.0.into());
+        $ps.extend(layer.parameters());
         layer.call($input)
     }};
 
     // Chain layers: recursive case with more than two dimensions
-    (@chain_layers $input:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {{
+    (@chain_layers $input:expr, $ps:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {{
         let layer = Layer::<$in, $next>::new();
         let output = layer.call($input);
-        //ps.extend(layer.parameters());
-        mlp!(@chain_layers &output, [$next $(, $rest)+])
+        $ps.extend(layer.parameters());
+        mlp!(@chain_layers &output, $ps, [$next $(, $rest)+])
     }};
 }
 
