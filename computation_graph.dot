@@ -1,9 +1,402 @@
 strict digraph computation_graph {
-  n0[label="x1x2|data=2.0000|grad=1.0000",shape=record]
-  n0_op[label="x",shape=circle]
+  n0[label="tan(b+w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w1tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w2tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w3tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1)))|data=0.9111|grad=0.0000",shape=record]
+  n0_op[label="tanh",shape=circle]
   n0_op -> n0
   n1 -> n0_op
-  n1[label="x1|data=1.0000|grad=2.0000",shape=record]
-  n2 -> n0_op
-  n2[label="x2|data=2.0000|grad=1.0000",shape=record]
+  n1[label="b+w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w1tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w2tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w3tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=1.5342|grad=0.0000",shape=record]
+  n1_op[label="+",shape=circle]
+  n1_op -> n1
+  n2 -> n1_op
+  n2[label="b+w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w1tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w2tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=1.7298|grad=0.0000",shape=record]
+  n2_op[label="+",shape=circle]
+  n2_op -> n2
+  n3 -> n2_op
+  n3[label="b+w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))+w1tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=1.7051|grad=0.0000",shape=record]
+  n3_op[label="+",shape=circle]
+  n3_op -> n3
+  n4 -> n3_op
+  n4[label="b+w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=1.0094|grad=0.0000",shape=record]
+  n4_op[label="+",shape=circle]
+  n4_op -> n4
+  n5 -> n4_op
+  n5[label="b|data=0.4424|grad=0.0000",shape=record]
+  n6 -> n4_op
+  n6[label="w0tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=0.5670|grad=0.0000",shape=record]
+  n6_op[label="x",shape=circle]
+  n6_op -> n6
+  n7 -> n6_op
+  n7[label="w0|data=-0.5864|grad=0.0000",shape=record]
+  n8 -> n6_op
+  n8[label="tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=-0.9669|grad=0.0000",shape=record]
+  n8_op[label="tanh",shape=circle]
+  n8_op -> n8
+  n9 -> n8_op
+  n9[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1)|data=-2.0428|grad=0.0000",shape=record]
+  n9_op[label="+",shape=circle]
+  n9_op -> n9
+  n10 -> n9_op
+  n10[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)|data=-1.1848|grad=0.0000",shape=record]
+  n10_op[label="+",shape=circle]
+  n10_op -> n10
+  n11 -> n10_op
+  n11[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)|data=-0.3898|grad=0.0000",shape=record]
+  n11_op[label="+",shape=circle]
+  n11_op -> n11
+  n12 -> n11_op
+  n12[label="b+w0tan(b+w0w2+w1w3+w2w-1)|data=-0.3041|grad=0.0000",shape=record]
+  n12_op[label="+",shape=circle]
+  n12_op -> n12
+  n13 -> n12_op
+  n13[label="b|data=0.3052|grad=0.0000",shape=record]
+  n14 -> n12_op
+  n14[label="w0tan(b+w0w2+w1w3+w2w-1)|data=-0.6093|grad=0.0000",shape=record]
+  n14_op[label="x",shape=circle]
+  n14_op -> n14
+  n15 -> n14_op
+  n15[label="w0|data=0.7345|grad=0.0000",shape=record]
+  n16 -> n14_op
+  n16[label="tan(b+w0w2+w1w3+w2w-1)|data=-0.8295|grad=0.0000",shape=record]
+  n16_op[label="tanh",shape=circle]
+  n16_op -> n16
+  n17 -> n16_op
+  n17[label="b+w0w2+w1w3+w2w-1|data=-1.1865|grad=0.0000",shape=record]
+  n17_op[label="+",shape=circle]
+  n17_op -> n17
+  n18 -> n17_op
+  n18[label="b+w0w2+w1w3|data=-1.1473|grad=0.0000",shape=record]
+  n18_op[label="+",shape=circle]
+  n18_op -> n18
+  n19 -> n18_op
+  n19[label="b+w0w2|data=0.3436|grad=0.0000",shape=record]
+  n19_op[label="+",shape=circle]
+  n19_op -> n19
+  n20 -> n19_op
+  n20[label="b|data=0.8357|grad=0.0000",shape=record]
+  n21 -> n19_op
+  n21[label="w0w2|data=-0.4921|grad=0.0000",shape=record]
+  n21_op[label="x",shape=circle]
+  n21_op -> n21
+  n22 -> n21_op
+  n22[label="w0|data=-0.2461|grad=0.0000",shape=record]
+  n23 -> n21_op
+  n23[label="w2|data=2.0000|grad=0.0000",shape=record]
+  n24 -> n18_op
+  n24[label="w1w3|data=-1.4909|grad=0.0000",shape=record]
+  n24_op[label="x",shape=circle]
+  n24_op -> n24
+  n25 -> n24_op
+  n25[label="w1|data=-0.4970|grad=0.0000",shape=record]
+  n26 -> n24_op
+  n26[label="w3|data=3.0000|grad=0.0000",shape=record]
+  n27 -> n17_op
+  n27[label="w2w-1|data=-0.0392|grad=0.0000",shape=record]
+  n27_op[label="x",shape=circle]
+  n27_op -> n27
+  n28 -> n27_op
+  n28[label="w2|data=0.0392|grad=0.0000",shape=record]
+  n29 -> n27_op
+  n29[label="w-1|data=-1.0000|grad=0.0000",shape=record]
+  n30 -> n11_op
+  n30[label="w1tan(b+w0w2+w1w3+w2w-1)|data=-0.0857|grad=0.0000",shape=record]
+  n30_op[label="x",shape=circle]
+  n30_op -> n30
+  n31 -> n30_op
+  n31[label="w1|data=0.0920|grad=0.0000",shape=record]
+  n32 -> n30_op
+  n32[label="tan(b+w0w2+w1w3+w2w-1)|data=-0.9325|grad=0.0000",shape=record]
+  n32_op[label="tanh",shape=circle]
+  n32_op -> n32
+  n33 -> n32_op
+  n33[label="b+w0w2+w1w3+w2w-1|data=-1.6772|grad=0.0000",shape=record]
+  n33_op[label="+",shape=circle]
+  n33_op -> n33
+  n34 -> n33_op
+  n34[label="b+w0w2+w1w3|data=-2.1453|grad=0.0000",shape=record]
+  n34_op[label="+",shape=circle]
+  n34_op -> n34
+  n35 -> n34_op
+  n35[label="b+w0w2|data=0.1501|grad=0.0000",shape=record]
+  n35_op[label="+",shape=circle]
+  n35_op -> n35
+  n36 -> n35_op
+  n36[label="b|data=0.6796|grad=0.0000",shape=record]
+  n37 -> n35_op
+  n37[label="w0w2|data=-0.5296|grad=0.0000",shape=record]
+  n37_op[label="x",shape=circle]
+  n37_op -> n37
+  n38 -> n37_op
+  n38[label="w0|data=-0.2648|grad=0.0000",shape=record]
+  n23 -> n37_op
+  n39 -> n34_op
+  n39[label="w1w3|data=-2.2953|grad=0.0000",shape=record]
+  n39_op[label="x",shape=circle]
+  n39_op -> n39
+  n40 -> n39_op
+  n40[label="w1|data=-0.7651|grad=0.0000",shape=record]
+  n26 -> n39_op
+  n41 -> n33_op
+  n41[label="w2w-1|data=0.4681|grad=0.0000",shape=record]
+  n41_op[label="x",shape=circle]
+  n41_op -> n41
+  n42 -> n41_op
+  n42[label="w2|data=-0.4681|grad=0.0000",shape=record]
+  n29 -> n41_op
+  n43 -> n10_op
+  n43[label="w2tan(b+w0w2+w1w3+w2w-1)|data=-0.7950|grad=0.0000",shape=record]
+  n43_op[label="x",shape=circle]
+  n43_op -> n43
+  n44 -> n43_op
+  n44[label="w2|data=-0.7951|grad=0.0000",shape=record]
+  n45 -> n43_op
+  n45[label="tan(b+w0w2+w1w3+w2w-1)|data=0.9999|grad=0.0000",shape=record]
+  n45_op[label="tanh",shape=circle]
+  n45_op -> n45
+  n46 -> n45_op
+  n46[label="b+w0w2+w1w3+w2w-1|data=4.8084|grad=0.0000",shape=record]
+  n46_op[label="+",shape=circle]
+  n46_op -> n46
+  n47 -> n46_op
+  n47[label="b+w0w2+w1w3|data=4.9439|grad=0.0000",shape=record]
+  n47_op[label="+",shape=circle]
+  n47_op -> n47
+  n48 -> n47_op
+  n48[label="b+w0w2|data=2.1630|grad=0.0000",shape=record]
+  n48_op[label="+",shape=circle]
+  n48_op -> n48
+  n49 -> n48_op
+  n49[label="b|data=0.8153|grad=0.0000",shape=record]
+  n50 -> n48_op
+  n50[label="w0w2|data=1.3477|grad=0.0000",shape=record]
+  n50_op[label="x",shape=circle]
+  n50_op -> n50
+  n51 -> n50_op
+  n51[label="w0|data=0.6738|grad=0.0000",shape=record]
+  n23 -> n50_op
+  n52 -> n47_op
+  n52[label="w1w3|data=2.7809|grad=0.0000",shape=record]
+  n52_op[label="x",shape=circle]
+  n52_op -> n52
+  n53 -> n52_op
+  n53[label="w1|data=0.9270|grad=0.0000",shape=record]
+  n26 -> n52_op
+  n54 -> n46_op
+  n54[label="w2w-1|data=-0.1355|grad=0.0000",shape=record]
+  n54_op[label="x",shape=circle]
+  n54_op -> n54
+  n55 -> n54_op
+  n55[label="w2|data=0.1355|grad=0.0000",shape=record]
+  n29 -> n54_op
+  n56 -> n9_op
+  n56[label="w3tan(b+w0w2+w1w3+w2w-1)|data=-0.8581|grad=0.0000",shape=record]
+  n56_op[label="x",shape=circle]
+  n56_op -> n56
+  n57 -> n56_op
+  n57[label="w3|data=-0.9572|grad=0.0000",shape=record]
+  n58 -> n56_op
+  n58[label="tan(b+w0w2+w1w3+w2w-1)|data=0.8964|grad=0.0000",shape=record]
+  n58_op[label="tanh",shape=circle]
+  n58_op -> n58
+  n59 -> n58_op
+  n59[label="b+w0w2+w1w3+w2w-1|data=1.4536|grad=0.0000",shape=record]
+  n59_op[label="+",shape=circle]
+  n59_op -> n59
+  n60 -> n59_op
+  n60[label="b+w0w2+w1w3|data=2.1779|grad=0.0000",shape=record]
+  n60_op[label="+",shape=circle]
+  n60_op -> n60
+  n61 -> n60_op
+  n61[label="b+w0w2|data=0.6867|grad=0.0000",shape=record]
+  n61_op[label="+",shape=circle]
+  n61_op -> n61
+  n62 -> n61_op
+  n62[label="b|data=0.6234|grad=0.0000",shape=record]
+  n63 -> n61_op
+  n63[label="w0w2|data=0.0633|grad=0.0000",shape=record]
+  n63_op[label="x",shape=circle]
+  n63_op -> n63
+  n64 -> n63_op
+  n64[label="w0|data=0.0317|grad=0.0000",shape=record]
+  n23 -> n63_op
+  n65 -> n60_op
+  n65[label="w1w3|data=1.4912|grad=0.0000",shape=record]
+  n65_op[label="x",shape=circle]
+  n65_op -> n65
+  n66 -> n65_op
+  n66[label="w1|data=0.4971|grad=0.0000",shape=record]
+  n26 -> n65_op
+  n67 -> n59_op
+  n67[label="w2w-1|data=-0.7244|grad=0.0000",shape=record]
+  n67_op[label="x",shape=circle]
+  n67_op -> n67
+  n68 -> n67_op
+  n68[label="w2|data=0.7244|grad=0.0000",shape=record]
+  n29 -> n67_op
+  n69 -> n3_op
+  n69[label="w1tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=0.6957|grad=0.0000",shape=record]
+  n69_op[label="x",shape=circle]
+  n69_op -> n69
+  n70 -> n69_op
+  n70[label="w1|data=0.9225|grad=0.0000",shape=record]
+  n71 -> n69_op
+  n71[label="tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=0.7542|grad=0.0000",shape=record]
+  n71_op[label="tanh",shape=circle]
+  n71_op -> n71
+  n72 -> n71_op
+  n72[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1)|data=0.9827|grad=0.0000",shape=record]
+  n72_op[label="+",shape=circle]
+  n72_op -> n72
+  n73 -> n72_op
+  n73[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)|data=0.5171|grad=0.0000",shape=record]
+  n73_op[label="+",shape=circle]
+  n73_op -> n73
+  n74 -> n73_op
+  n74[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)|data=-0.4152|grad=0.0000",shape=record]
+  n74_op[label="+",shape=circle]
+  n74_op -> n74
+  n75 -> n74_op
+  n75[label="b+w0tan(b+w0w2+w1w3+w2w-1)|data=-0.6130|grad=0.0000",shape=record]
+  n75_op[label="+",shape=circle]
+  n75_op -> n75
+  n76 -> n75_op
+  n76[label="b|data=-0.8222|grad=0.0000",shape=record]
+  n77 -> n75_op
+  n77[label="w0tan(b+w0w2+w1w3+w2w-1)|data=0.2092|grad=0.0000",shape=record]
+  n77_op[label="x",shape=circle]
+  n77_op -> n77
+  n78 -> n77_op
+  n78[label="w0|data=-0.2522|grad=0.0000",shape=record]
+  n16 -> n77_op
+  n79 -> n74_op
+  n79[label="w1tan(b+w0w2+w1w3+w2w-1)|data=0.1978|grad=0.0000",shape=record]
+  n79_op[label="x",shape=circle]
+  n79_op -> n79
+  n80 -> n79_op
+  n80[label="w1|data=-0.2121|grad=0.0000",shape=record]
+  n32 -> n79_op
+  n81 -> n73_op
+  n81[label="w2tan(b+w0w2+w1w3+w2w-1)|data=0.9323|grad=0.0000",shape=record]
+  n81_op[label="x",shape=circle]
+  n81_op -> n81
+  n82 -> n81_op
+  n82[label="w2|data=0.9325|grad=0.0000",shape=record]
+  n45 -> n81_op
+  n83 -> n72_op
+  n83[label="w3tan(b+w0w2+w1w3+w2w-1)|data=0.4655|grad=0.0000",shape=record]
+  n83_op[label="x",shape=circle]
+  n83_op -> n83
+  n84 -> n83_op
+  n84[label="w3|data=0.5193|grad=0.0000",shape=record]
+  n58 -> n83_op
+  n85 -> n2_op
+  n85[label="w2tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=0.0247|grad=0.0000",shape=record]
+  n85_op[label="x",shape=circle]
+  n85_op -> n85
+  n86 -> n85_op
+  n86[label="w2|data=0.1038|grad=0.0000",shape=record]
+  n87 -> n85_op
+  n87[label="tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=0.2381|grad=0.0000",shape=record]
+  n87_op[label="tanh",shape=circle]
+  n87_op -> n87
+  n88 -> n87_op
+  n88[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1)|data=0.2427|grad=0.0000",shape=record]
+  n88_op[label="+",shape=circle]
+  n88_op -> n88
+  n89 -> n88_op
+  n89[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)|data=-0.1315|grad=0.0000",shape=record]
+  n89_op[label="+",shape=circle]
+  n89_op -> n89
+  n90 -> n89_op
+  n90[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)|data=-0.7538|grad=0.0000",shape=record]
+  n90_op[label="+",shape=circle]
+  n90_op -> n90
+  n91 -> n90_op
+  n91[label="b+w0tan(b+w0w2+w1w3+w2w-1)|data=0.1537|grad=0.0000",shape=record]
+  n91_op[label="+",shape=circle]
+  n91_op -> n91
+  n92 -> n91_op
+  n92[label="b|data=0.1200|grad=0.0000",shape=record]
+  n93 -> n91_op
+  n93[label="w0tan(b+w0w2+w1w3+w2w-1)|data=0.0337|grad=0.0000",shape=record]
+  n93_op[label="x",shape=circle]
+  n93_op -> n93
+  n94 -> n93_op
+  n94[label="w0|data=-0.0406|grad=0.0000",shape=record]
+  n16 -> n93_op
+  n95 -> n90_op
+  n95[label="w1tan(b+w0w2+w1w3+w2w-1)|data=-0.9075|grad=0.0000",shape=record]
+  n95_op[label="x",shape=circle]
+  n95_op -> n95
+  n96 -> n95_op
+  n96[label="w1|data=0.9732|grad=0.0000",shape=record]
+  n32 -> n95_op
+  n97 -> n89_op
+  n97[label="w2tan(b+w0w2+w1w3+w2w-1)|data=0.6223|grad=0.0000",shape=record]
+  n97_op[label="x",shape=circle]
+  n97_op -> n97
+  n98 -> n97_op
+  n98[label="w2|data=0.6224|grad=0.0000",shape=record]
+  n45 -> n97_op
+  n99 -> n88_op
+  n99[label="w3tan(b+w0w2+w1w3+w2w-1)|data=0.3743|grad=0.0000",shape=record]
+  n99_op[label="x",shape=circle]
+  n99_op -> n99
+  n100 -> n99_op
+  n100[label="w3|data=0.4175|grad=0.0000",shape=record]
+  n58 -> n99_op
+  n101 -> n1_op
+  n101[label="w3tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=-0.1957|grad=0.0000",shape=record]
+  n101_op[label="x",shape=circle]
+  n101_op -> n101
+  n102 -> n101_op
+  n102[label="w3|data=0.6143|grad=0.0000",shape=record]
+  n103 -> n101_op
+  n103[label="tan(b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1))|data=-0.3185|grad=0.0000",shape=record]
+  n103_op[label="tanh",shape=circle]
+  n103_op -> n103
+  n104 -> n103_op
+  n104[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)+w3tan(b+w0w2+w1w3+w2w-1)|data=-0.3300|grad=0.0000",shape=record]
+  n104_op[label="+",shape=circle]
+  n104_op -> n104
+  n105 -> n104_op
+  n105[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)+w2tan(b+w0w2+w1w3+w2w-1)|data=-0.6262|grad=0.0000",shape=record]
+  n105_op[label="+",shape=circle]
+  n105_op -> n105
+  n106 -> n105_op
+  n106[label="b+w0tan(b+w0w2+w1w3+w2w-1)+w1tan(b+w0w2+w1w3+w2w-1)|data=0.2874|grad=0.0000",shape=record]
+  n106_op[label="+",shape=circle]
+  n106_op -> n106
+  n107 -> n106_op
+  n107[label="b+w0tan(b+w0w2+w1w3+w2w-1)|data=0.4640|grad=0.0000",shape=record]
+  n107_op[label="+",shape=circle]
+  n107_op -> n107
+  n108 -> n107_op
+  n108[label="b|data=0.5130|grad=0.0000",shape=record]
+  n109 -> n107_op
+  n109[label="w0tan(b+w0w2+w1w3+w2w-1)|data=-0.0490|grad=0.0000",shape=record]
+  n109_op[label="x",shape=circle]
+  n109_op -> n109
+  n110 -> n109_op
+  n110[label="w0|data=0.0590|grad=0.0000",shape=record]
+  n16 -> n109_op
+  n111 -> n106_op
+  n111[label="w1tan(b+w0w2+w1w3+w2w-1)|data=-0.1766|grad=0.0000",shape=record]
+  n111_op[label="x",shape=circle]
+  n111_op -> n111
+  n112 -> n111_op
+  n112[label="w1|data=0.1894|grad=0.0000",shape=record]
+  n32 -> n111_op
+  n113 -> n105_op
+  n113[label="w2tan(b+w0w2+w1w3+w2w-1)|data=-0.9136|grad=0.0000",shape=record]
+  n113_op[label="x",shape=circle]
+  n113_op -> n113
+  n114 -> n113_op
+  n114[label="w2|data=-0.9137|grad=0.0000",shape=record]
+  n45 -> n113_op
+  n115 -> n104_op
+  n115[label="w3tan(b+w0w2+w1w3+w2w-1)|data=0.2963|grad=0.0000",shape=record]
+  n115_op[label="x",shape=circle]
+  n115_op -> n115
+  n116 -> n115_op
+  n116[label="w3|data=0.3305|grad=0.0000",shape=record]
+  n58 -> n115_op
 }

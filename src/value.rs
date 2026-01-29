@@ -1,8 +1,4 @@
-use std::{
-    cell::RefCell,
-    fmt::Display,
-    rc::Rc,
-};
+use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 pub mod ops;
 
@@ -142,5 +138,11 @@ impl Display for Value {
             self.grad.borrow(),
             self.label.as_deref().unwrap_or("None")
         )
+    }
+}
+
+impl From<f32> for Value {
+    fn from(value: f32) -> Value {
+        Value::new(value, &format!("w{}", value))
     }
 }
