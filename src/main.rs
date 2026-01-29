@@ -10,8 +10,7 @@ mod value;
 mod visualize;
 
 fn main() {
-    let mut params: Vec<Value> = vec![];
-    let mlp_fn = mlp!(3, 4, 4, 1);//TODO: macro should create a class to preserve the layers across training
+    let network = mlp!(3, 4, 4, 1);
 
     let xs = [
         [2.0.into(), 3.0.into(), (1.0).into()],
@@ -24,7 +23,7 @@ fn main() {
 
     let mut ypred: Vec<Value> = Vec::new();
     for x in xs {
-        let result = mlp_fn(&x, &mut params);
+        let result = network.predict(&x);
         ypred.push(result[0].clone());
     }
 
@@ -40,5 +39,7 @@ fn main() {
     loss.full_backward();
 
     println!("Loss: {}", loss.data.borrow());
+
+    let params = network.parameters();
     println!("Number of parameters: {}", params.len());
 }

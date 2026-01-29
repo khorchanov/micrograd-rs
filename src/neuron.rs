@@ -2,12 +2,12 @@ use rand::Rng;
 
 use crate::value::Value;
 
-/// Macro to create a Multi-Layer Perceptron (MLP) with static dimensions.
+/// Macro to create a Multi-Layer Perceptron (MLP) struct with static dimensions.
 ///
 /// # Usage
 ///
-/// The macro takes a comma-separated list of layer dimensions and returns a function
-/// that performs the forward pass through the network.
+/// The macro takes a comma-separated list of layer dimensions and generates a struct
+/// that holds all layers and provides `new()`, `predict()`, and `parameters()` methods.
 ///
 /// # Examples
 ///
@@ -16,57 +16,82 @@ use crate::value::Value;
 /// let network = mlp!(3, 4, 1);
 ///
 /// let input = [Value::new(1.0, "x1"), Value::new(2.0, "x2"), Value::new(3.0, "x3")];
-/// let output = network(&input);
-/// ```
-///
-/// ```
-/// // Create a 2->5->3->1 network (2 inputs, 2 hidden layers, 1 output)
-/// let network = mlp!(2, 5, 3, 1);
-///
-/// // Or with many layers: 10->8->6->4->2->1
-/// let deep_network = mlp!(10, 8, 6, 4, 2, 1);
+/// let output = network.predict(&input);  // Compile error if wrong size!
+/// let params = network.parameters();
 /// ```
 ///
 /// The macro supports networks with any number of layers!
 #[macro_export]
 macro_rules! mlp {
-    // Entry point: collect all dimensions and start processing
-    ($($dims:literal),+ $(,)?) => {{
-        mlp!(@build_fn [$($dims),+])
+    ($in:literal, $($rest:literal),+ $(,)?) => {{
+        mlp!(@build_struct $in, [$in, $($rest),+])
     }};
-
-    // Build the function with input and output dimensions
-    (@build_fn [$input:literal, $($rest:literal),+]) => {{
-        mlp!(@get_output [$input, $($rest),+] -> $($rest),+)
-    }};
-
-    // Extract the output dimension (last in the list)
-    (@get_output [$($all:literal),+] -> $last:literal) => {{
-        move |input: &[Value; mlp!(@first $($all),+)], ps: &mut Vec<Value>| -> [Value; $last] {
-            mlp!(@chain_layers input, ps, [$($all),+])
+    
+    (@build_struct $in:literal, [$($all:literal),+]) => {{
+        struct MLP {
+            layers: Vec<Box<dyn std::any::Any>>,
         }
+        
+        impl MLP {
+            fn new() -> Self {
+                let mut layers: Vec<Box<dyn std::any::Any>> = Vec::new();
+                mlp!(@build_layers layers, [$($all),+]);
+                
+                MLP { layers }
+            }
+            
+            fn predict(&self, input: &[Value; $in]) -> [Value; mlp!(@last $($all),+)] {
+                let mut idx = 0;
+                mlp!(@predict_chain input, self.layers, idx, [$($all),+])
+            }
+            
+            fn parameters(&self) -> Vec<Value> {
+                let mut params = Vec::new();
+                let mut idx = 0;
+                mlp!(@collect_params params, self.layers, idx, [$($all),+]);
+                params
+            }
+        }
+        
+        MLP::new()
     }};
-    (@get_output [$($all:literal),+] -> $first:literal, $($rest:literal),+) => {{
-        mlp!(@get_output [$($all),+] -> $($rest),+)
-    }};
-
-    // Get the first element from a list
-    (@first $first:literal $(, $rest:literal)*) => { $first };
-
-    // Chain layers: base case with just two dimensions (one layer)
-    (@chain_layers $input:expr, $ps:expr, [$in:literal, $out:literal]) => {{
-        let layer = Layer::<$in, $out>::new();
-        $ps.extend(layer.parameters());
+    
+    // Get last element
+    (@last $last:literal) => { $last };
+    (@last $first:literal, $($rest:literal),+) => { mlp!(@last $($rest),+) };
+    
+    // Build layers recursively
+    (@build_layers $layers:expr, [$in:literal, $out:literal]) => {
+        $layers.push(Box::new(Layer::<$in, $out>::new()));
+    };
+    (@build_layers $layers:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {
+        $layers.push(Box::new(Layer::<$in, $next>::new()));
+        mlp!(@build_layers $layers, [$next $(, $rest)+]);
+    };
+    
+    // Predict chain with type-safe array passing
+    (@predict_chain $input:expr, $layers:expr, $idx:expr, [$in:literal, $out:literal]) => {{
+        let layer = $layers[$idx].downcast_ref::<Layer<$in, $out>>().unwrap();
         layer.call($input)
     }};
-
-    // Chain layers: recursive case with more than two dimensions
-    (@chain_layers $input:expr, $ps:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {{
-        let layer = Layer::<$in, $next>::new();
+    (@predict_chain $input:expr, $layers:expr, $idx:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {{
+        let layer = $layers[$idx].downcast_ref::<Layer<$in, $next>>().unwrap();
         let output = layer.call($input);
-        $ps.extend(layer.parameters());
-        mlp!(@chain_layers &output, $ps, [$next $(, $rest)+])
+        $idx += 1;
+        mlp!(@predict_chain &output, $layers, $idx, [$next $(, $rest)+])
     }};
+    
+    // Collect parameters from all layers
+    (@collect_params $params:expr, $layers:expr, $idx:expr, [$in:literal, $out:literal]) => {
+        let layer = $layers[$idx].downcast_ref::<Layer<$in, $out>>().unwrap();
+        $params.extend(layer.parameters());
+    };
+    (@collect_params $params:expr, $layers:expr, $idx:expr, [$in:literal, $next:literal $(, $rest:literal)+]) => {
+        let layer = $layers[$idx].downcast_ref::<Layer<$in, $next>>().unwrap();
+        $params.extend(layer.parameters());
+        $idx += 1;
+        mlp!(@collect_params $params, $layers, $idx, [$next $(, $rest)+]);
+    };
 }
 
 pub struct Neuron<const N: usize> {
