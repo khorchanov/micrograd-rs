@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    iter::Sum,
     ops::{Add, Div, Mul, Neg, Sub},
     rc::Rc,
 };
@@ -9,7 +10,7 @@ use super::{Operation, Value};
 impl Add for Value {
     type Output = Value;
     fn add(self, other: Value) -> Value {
-        let result = Value {
+        Value {
             data: Rc::new(RefCell::new(*self.data.borrow() + *other.data.borrow())),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Add(
@@ -21,8 +22,7 @@ impl Add for Value {
                     + "+"
                     + &other.label.clone().unwrap_or_default(),
             ),
-        };
-        result
+        }
     }
 }
 
@@ -76,7 +76,7 @@ impl Sub<Value> for f32 {
 impl Mul for Value {
     type Output = Value;
     fn mul(self, other: Value) -> Value {
-        let result = Value {
+        Value {
             data: Rc::new(RefCell::new(*self.data.borrow() * *other.data.borrow())),
             grad: Rc::new(RefCell::new(0.0)),
             op: Some(Operation::Mul(
@@ -86,8 +86,7 @@ impl Mul for Value {
             label: Some(
                 self.label.clone().unwrap_or_default() + &other.label.clone().unwrap_or_default(),
             ),
-        };
-        result
+        }
     }
 }
 
@@ -118,5 +117,11 @@ impl Mul<Value> for f32 {
     fn mul(self, other: Value) -> Value {
         let self_value = Value::new(self, self.to_string().as_str());
         self_value * other
+    }
+}
+
+impl Sum for Value {
+    fn sum<I: Iterator<Item = Value>>(iter: I) -> Self {
+        iter.fold(Value::new(0.0, "0"), |acc, x| acc + x)
     }
 }

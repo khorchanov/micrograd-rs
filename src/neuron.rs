@@ -26,25 +26,25 @@ macro_rules! mlp {
     ($in:literal, $($rest:literal),+ $(,)?) => {{
         mlp!(@build_struct $in, [$in, $($rest),+])
     }};
-    
+
     (@build_struct $in:literal, [$($all:literal),+]) => {{
-        struct MLP {
+        struct Mlp {
             layers: Vec<Box<dyn std::any::Any>>,
         }
-        
-        impl MLP {
+
+        impl Mlp {
             fn new() -> Self {
-                let mut layers: Vec<Box<dyn std::any::Any>> = Vec::new();
+                let mut layers: Vec<Box<dyn std::any::Any>> = vec![] ;
                 mlp!(@build_layers layers, [$($all),+]);
-                
-                MLP { layers }
+
+                Mlp { layers }
             }
-            
+
             fn predict(&self, input: &[Value; $in]) -> [Value; mlp!(@last $($all),+)] {
                 let mut idx = 0;
                 mlp!(@predict_chain input, self.layers, idx, [$($all),+])
             }
-            
+
             fn parameters(&self) -> Vec<Value> {
                 let mut params = Vec::new();
                 let mut idx = 0;
@@ -52,14 +52,14 @@ macro_rules! mlp {
                 params
             }
         }
-        
-        MLP::new()
+
+        Mlp::new()
     }};
-    
+
     // Get last element
     (@last $last:literal) => { $last };
     (@last $first:literal, $($rest:literal),+) => { mlp!(@last $($rest),+) };
-    
+
     // Build layers recursively
     (@build_layers $layers:expr, [$in:literal, $out:literal]) => {
         $layers.push(Box::new(Layer::<$in, $out>::new()));
@@ -68,7 +68,7 @@ macro_rules! mlp {
         $layers.push(Box::new(Layer::<$in, $next>::new()));
         mlp!(@build_layers $layers, [$next $(, $rest)+]);
     };
-    
+
     // Predict chain with type-safe array passing
     (@predict_chain $input:expr, $layers:expr, $idx:expr, [$in:literal, $out:literal]) => {{
         let layer = $layers[$idx].downcast_ref::<Layer<$in, $out>>().unwrap();
@@ -80,7 +80,7 @@ macro_rules! mlp {
         $idx += 1;
         mlp!(@predict_chain &output, $layers, $idx, [$next $(, $rest)+])
     }};
-    
+
     // Collect parameters from all layers
     (@collect_params $params:expr, $layers:expr, $idx:expr, [$in:literal, $out:literal]) => {
         let layer = $layers[$idx].downcast_ref::<Layer<$in, $out>>().unwrap();

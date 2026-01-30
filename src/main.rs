@@ -1,8 +1,8 @@
 #![allow(warnings)]
 
-use std::iter::zip;
+use std::iter::{Sum, zip};
 
-use crate::neuron::{Layer, Neuron};
+use crate::neuron::Layer;
 use crate::value::Value;
 
 mod neuron;
@@ -13,33 +13,42 @@ fn main() {
     let network = mlp!(3, 4, 4, 1);
 
     let xs = [
-        [2.0.into(), 3.0.into(), (1.0).into()],
-        [1.0.into(), 0.0.into(), (-9.0).into()],
-        [4.0.into(), 4.0.into(), (-3.0).into()],
-        [(-3.0).into(), 2.0.into(), (5.0).into()],
+        [2.0.into(), 3.0.into(), (-1.0).into()],
+        [3.0.into(), (-1.0).into(), 0.5.into()],
+        [0.5.into(), 1.0.into(), 1.0.into()],
+        [1.0.into(), 1.0.into(), (-1.0).into()],
     ];
 
-    let ys: [Value; 3] = [6.0.into(), (-8.0).into(), (4.0).into()];
+    let ys: [Value; 4] = [1.0.into(), (-1.0).into(), (-1.0).into(), 1.0.into()];
 
-    let mut ypred: Vec<Value> = Vec::new();
-    for x in xs {
-        let result = network.predict(&x);
-        ypred.push(result[0].clone());
+    let loss_fn = |ypred: Vec<Value>| -> Value {
+        Sum::sum(zip(ys.clone(), ypred).map(|(ypr, yout)| (ypr - yout).powf(2.0)))
+    };
+
+    for _ in 0..1000 {
+        // Predict
+        let mut ypred = Vec::new();
+        for x in xs.iter() {
+            let result = network.predict(x);
+            ypred.push(result[0].clone());
+        }
+
+        // Compute the loss
+        let mut loss: Value = loss_fn(ypred.clone());
+        println!("Loss: {}", loss.data.borrow());
+        let params = network.parameters();
+
+        // Zero gradients before backward pass
+        for p in params.iter() {
+            *p.grad.borrow_mut() = 0.0;
+        }
+
+        //Train
+        loss.full_backward();
+        for p in params.iter() {
+            *p.data.borrow_mut() -= 0.05 * *p.grad.borrow();
+        }
     }
-
-    // for y in ypred {
-    //     println!("Result: {}", y.data.borrow());
-    // }
-
-    let mut loss: Value = 0.0.into();
-    for (ypr, yout) in zip(ys, ypred) {
-        loss = loss + (ypr - yout).powf(2.0);
-    }
-
-    loss.full_backward();
-
-    println!("Loss: {}", loss.data.borrow());
-
-    let params = network.parameters();
-    println!("Number of parameters: {}", params.len());
+    let result = network.predict(&[1.0.into(), 1.0.into(), (-1.0).into()]);
+    println!("result= {}", result[0].data.borrow());
 }
